@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: agoda-wallet-postgres
+    environment:
+      POSTGRES_USER: agoda_wallet
+      POSTGRES_PASSWORD: agoda_wallet
+      POSTGRES_DB: agoda_wallet
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./src/main/resources/db/migration/V1__init.sql:/docker-entrypoint-initdb.d/V1__init.sql
+
+  travel-card-api:
+    build: .
+    container_name: travel-card-api-standalone
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_JDBC_URL: jdbc:postgresql://postgres:5432/agoda_wallet
+      DATABASE_USERNAME: agoda_wallet
+      DATABASE_PASSWORD: agoda_wallet
+      WISE_BASE_URL: https://api.wise-sandbox.com
+    ports:
+      - "8080:8080"

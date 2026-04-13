@@ -1,0 +1,210 @@
+{
+	"info": {
+		"name": "travel-card-api-standalone",
+		"description": "Collection for the Agoda travel-card-api-standalone app (Ktor on :8080). Uses {{baseUrl}} — override at collection or environment level to hit keploy's ingress port or a deployed host.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_postman_id": "travel-card-api-standalone-collection"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "whitelabel",
+			"value": "AGODA",
+			"type": "string"
+		},
+		{
+			"key": "accountId",
+			"value": "acct_123",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "GET /index — liveness",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/index",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index"
+					]
+				},
+				"description": "Liveness probe. Should return 200 OK with body 'OK'."
+			},
+			"response": []
+		},
+		{
+			"name": "GET /healthcheck — readiness (DB pool)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/healthcheck",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"healthcheck"
+					]
+				},
+				"description": "Readiness probe. Returns JSON with service+database status. HikariCP init failures surface here as database:DOWN."
+			},
+			"response": []
+		},
+		{
+			"name": "GET /openapi.json",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/openapi.json",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"openapi.json"
+					]
+				},
+				"description": "OpenAPI spec for the service."
+			},
+			"response": []
+		},
+		{
+			"name": "GET /docs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/docs",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"docs"
+					]
+				},
+				"description": "API docs UI."
+			},
+			"response": []
+		},
+		{
+			"name": "POST /account/transactions — acct_123 (50/0)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Agoda-Whitelabel",
+						"value": "{{whitelabel}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"limit\": 50,\n  \"offset\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/account/transactions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"account",
+						"transactions"
+					]
+				},
+				"description": "Primary business endpoint. Paginated travel-card transactions for an account. Returns 500 if HikariCP pool failed to initialise."
+			},
+			"response": []
+		},
+		{
+			"name": "POST /account/transactions — acct_456 (10/0)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Agoda-Whitelabel",
+						"value": "{{whitelabel}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"accountId\": \"acct_456\",\n  \"limit\": 10,\n  \"offset\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/account/transactions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"account",
+						"transactions"
+					]
+				},
+				"description": "Second account, smaller page."
+			},
+			"response": []
+		},
+		{
+			"name": "POST /account/transactions — paginated (offset 50)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Agoda-Whitelabel",
+						"value": "{{whitelabel}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"limit\": 50,\n  \"offset\": 50\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/account/transactions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"account",
+						"transactions"
+					]
+				},
+				"description": "Second page to exercise offset handling."
+			},
+			"response": []
+		}
+	]
+}

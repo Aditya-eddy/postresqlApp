@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gradle --version)",
+      "Bash(java -version)",
+      "Read(//home/aditya-sharma/**)",
+      "Read(//tmp/**)",
+      "Bash(curl -fsSL -o gradle-8.5-bin.zip https://services.gradle.org/distributions/gradle-8.5-bin.zip)",
+      "Bash(unzip -q gradle-8.5-bin.zip)",
+      "Bash(/tmp/gradle-8.5/bin/gradle -p /home/aditya-sharma/Desktop/postresqlApp wrapper --gradle-version 8.5 --distribution-type bin)",
+      "Bash(./gradlew compileKotlin)",
+      "Bash(docker exec:*)",
+      "Bash(./gradlew run:*)",
+      "Bash(curl -s -i http://localhost:8080/index)",
+      "Bash(curl -s -i http://localhost:8080/healthcheck)",
+      "Bash(curl -s -i -X POST http://localhost:8080/account/transactions -H 'Content-Type: application/json' -H 'X-Agoda-Whitelabel: AGODA' -d '{\"accountId\":\"acct_demo\",\"limit\":10,\"offset\":0}')",
+      "Bash(curl -s -X POST http://localhost:8080/account/transactions -H 'Content-Type: application/json' -H 'X-Agoda-Whitelabel: AGODA' -d '{\"accountId\":\"acct_demo\",\"limit\":10,\"offset\":0}')",
+      "Bash(curl -s -X POST http://localhost:8080/account/transactions -H 'Content-Type: application/json' -H 'X-Agoda-Whitelabel: KAYAK' -d '{\"accountId\":\"acct_demo\",\"limit\":10,\"offset\":0}')",
+      "Bash(curl -s -i -X POST http://localhost:8080/account/transactions -H 'Content-Type: application/json' -d '{\"accountId\":\"\",\"limit\":10,\"offset\":0}')",
+      "Bash(gh auth:*)",
+      "Bash(git config:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
