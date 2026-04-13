@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: travelcard
+
+resources:
+  - namespace.yaml
+  - postgres-secret.yaml
+  - postgres-configmap.yaml
+  - postgres-service.yaml
+  - postgres-statefulset.yaml
+  - travel-card-api-secret.yaml
+  - travel-card-api-configmap.yaml
+  - travel-card-api-deployment.yaml
+  - travel-card-api-service.yaml

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: travel-card-api-config
+  namespace: travelcard
+data:
+  DATABASE_JDBC_URL: jdbc:postgresql://postgres:5432/agoda_wallet
+  WISE_BASE_URL: https://api.wise-sandbox.com
+  WISE_CLIENT_ID: agoda-travelcard
+  WISE_SUBSIDY_CLIENT_ID: agoda-travelcard-subsidy
+  PROXY_ENABLED: "false"
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
+  OTEL_SERVICE_NAME: travel-card-api-standalone
+  OTEL_RESOURCE_ATTRIBUTES: service.namespace=travelcard,deployment.environment=AP
