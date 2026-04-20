@@ -100,4 +100,46 @@ VALUES
     ('acct_booking_001', 'card_bkg', 'BOOKING', 'CAPTURE', 'COMPLETED', 22000, 'EUR', 'Booking.com',    'WR-20260420-000402', now() - interval '3 hours'),
     ('acct_booking_001', 'card_bkg', 'BOOKING', 'AUTH',    'PENDING',    8750, 'EUR', 'Ryanair',         NULL,                now() - interval '1 day');
 
+-- Wallets for members 19..23 referenced by the Postman pre-request script.
+DELETE FROM wallets WHERE member_id IN ('19', '20', '21', '22', '23');
+INSERT INTO wallets (member_id, wallet_id, currency) VALUES
+    ('19', 'wlt_000000019', 'THB'),
+    ('20', 'wlt_000000020', 'USD'),
+    ('21', 'wlt_000000021', 'SGD'),
+    ('22', 'wlt_000000022', 'JPY'),
+    ('23', 'wlt_000000023', 'EUR');
+
+-- A couple of pre-existing travel cards so POST /card/topup|freeze work out of the box.
+DELETE FROM travel_cards WHERE account_id IN ('acct_123', 'acct_456');
+INSERT INTO travel_cards (id, account_id, whitelabel, card_type, currency, status, balance_minor, masked_pan) VALUES
+    (1, 'acct_123', 'AGODA', 'VIRTUAL',  'THB', 'ACTIVE', 250000, '**** **** **** 4242'),
+    (2, 'acct_123', 'AGODA', 'PHYSICAL', 'USD', 'ACTIVE', 150000, '**** **** **** 0007'),
+    (3, 'acct_456', 'AGODA', 'VIRTUAL',  'SGD', 'FROZEN',  50000, '**** **** **** 1337');
+-- Keep the sequence ahead of the manual ids above.
+SELECT setval('travel_cards_id_seq', (SELECT COALESCE(MAX(id), 0) FROM travel_cards));
+
+-- Sample bookings so POST /booking/cancel has refs to target.
+DELETE FROM bookings WHERE booking_ref IN ('HTL-SEED0001', 'HTL-SEED0002', 'FLT-SEED0001');
+INSERT INTO bookings
+    (booking_ref, account_id, whitelabel, booking_type, status, total_amount_minor, currency,
+     hotel_name, destination, check_in, check_out, rooms, guests)
+VALUES
+    ('HTL-SEED0001', 'acct_123', 'AGODA', 'HOTEL', 'CONFIRMED', 450000, 'THB',
+     'Grand Hyatt Erawan Bangkok', 'Bangkok, Thailand', DATE '2026-05-15', DATE '2026-05-18', 1, 2),
+    ('HTL-SEED0002', 'acct_456', 'AGODA', 'HOTEL', 'CONFIRMED', 15000000, 'JPY',
+     'Aman Tokyo', 'Tokyo, Japan', DATE '2026-07-10', DATE '2026-07-12', 1, 1);
+INSERT INTO bookings
+    (booking_ref, account_id, whitelabel, booking_type, status, total_amount_minor, currency,
+     airline, flight_number, origin, flight_destination, departure_date, return_date, passengers, cabin_class)
+VALUES
+    ('FLT-SEED0001', 'acct_123', 'AGODA', 'FLIGHT', 'CONFIRMED', 3500000, 'THB',
+     'Thai Airways', 'TG660', 'BKK', 'NRT', DATE '2026-05-15', DATE '2026-05-22', 2, 'ECONOMY');
+
+-- Sample payment so POST /payment/refund has a ref to refund.
+DELETE FROM payments WHERE payment_ref IN ('PAY-SEED0001');
+INSERT INTO payments
+    (payment_ref, account_id, whitelabel, card_id, booking_ref, amount_minor, currency, payment_method, status)
+VALUES
+    ('PAY-SEED0001', 'acct_123', 'AGODA', 1, 'HTL-SEED0001', 450000, 'THB', 'TRAVEL_CARD', 'COMPLETED');
+
 COMMIT;

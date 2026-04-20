@@ -7,7 +7,11 @@ import com.agoda.travelcard.api.plugins.configureOpenApi
 import com.agoda.travelcard.api.plugins.configureStatusPages
 import com.agoda.travelcard.api.plugins.configureWhitelabelContext
 import com.agoda.travelcard.api.routes.accountRoutes
+import com.agoda.travelcard.api.routes.bookingRoutes
+import com.agoda.travelcard.api.routes.cardRoutes
 import com.agoda.travelcard.api.routes.indexRoutes
+import com.agoda.travelcard.api.routes.paymentRoutes
+import com.agoda.travelcard.api.routes.reviewRoutes
 import com.agoda.travelcard.common.config.AppConfig
 import com.agoda.travelcard.common.database.DatabaseConnectionModule
 import com.agoda.travelcard.common.di.appModule
@@ -60,6 +64,10 @@ fun Application.module() {
 
     indexRoutes()
     accountRoutes()
+    cardRoutes()
+    bookingRoutes()
+    paymentRoutes()
+    reviewRoutes()
 
     logger.info("travel-card-api-standalone ready")
 }

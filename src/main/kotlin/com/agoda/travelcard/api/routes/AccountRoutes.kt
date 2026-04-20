@@ -3,10 +3,13 @@ package com.agoda.travelcard.api.routes
 import com.agoda.travelcard.account.AccountTransactionService
 import com.agoda.travelcard.api.plugins.whitelabel
 import com.agoda.travelcard.common.database.TransactionRecord
+import com.agoda.travelcard.wallet.WalletService
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
+import io.ktor.server.request.header
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
@@ -53,8 +56,16 @@ private fun TransactionRecord.toDto() = TransactionDto(
     createdAtEpochMs = createdAt.toEpochMilli(),
 )
 
+@Serializable
+data class WalletCheckResponse(
+    val walletId: String,
+    val memberId: String,
+    val currency: String,
+)
+
 fun Application.accountRoutes() {
     val service: AccountTransactionService by inject()
+    val walletService: WalletService by inject()
     routing {
         route("/account") {
             post("/transactions") {
@@ -65,6 +76,17 @@ fun Application.accountRoutes() {
                     TransactionListResponse(
                         whitelabel = wl,
                         transactions = records.map(TransactionRecord::toDto),
+                    ),
+                )
+            }
+            get("/wallet/check") {
+                val memberId = call.request.header("X-Agoda-Member-Id").orEmpty()
+                val wallet = walletService.check(memberId)
+                call.respond(
+                    WalletCheckResponse(
+                        walletId = wallet.walletId,
+                        memberId = wallet.memberId,
+                        currency = wallet.currency,
                     ),
                 )
             }

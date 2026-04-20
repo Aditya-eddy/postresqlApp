@@ -1,8 +1,13 @@
 package com.agoda.travelcard.common.di
 
 import com.agoda.travelcard.account.AccountTransactionService
+import com.agoda.travelcard.booking.BookingService
+import com.agoda.travelcard.card.CardService
 import com.agoda.travelcard.common.config.AppConfig
 import com.agoda.travelcard.common.database.TransactionRepository
+import com.agoda.travelcard.payment.PaymentService
+import com.agoda.travelcard.review.ReviewService
+import com.agoda.travelcard.wallet.WalletService
 import com.agoda.travelcard.wise.WiseClient
 import com.agoda.travelcard.wise.WiseClientConfig
 import com.agoda.travelcard.wise.WiseClients
@@ -70,4 +75,9 @@ fun appModule(config: AppConfig): Module = module {
 
     single { TransactionRepository() }
     single { AccountTransactionService(get()) }
+    single { WalletService() }
+    single { CardService() }
+    single { BookingService() }
+    single { PaymentService() }
+    single { ReviewService() }
 }

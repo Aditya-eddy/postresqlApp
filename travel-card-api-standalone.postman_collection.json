@@ -1,0 +1,959 @@
+{
+	"info": {
+		"_postman_id": "8493f4ca-6b1f-4d51-84ca-423515c770e2",
+		"name": "travel-card-api-standalone",
+		"description": "Collection for the Agoda travel-card-api-standalone app (Ktor on :8080). Uses {{baseUrl}} — override at collection or environment level to hit keploy's ingress port or a deployed host.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48922884",
+		"_collection_link": "https://aditya-sharma-08526e70-5007784.postman.co/workspace/Aditya-Sharma's-Workspace~53cb91a0-e173-4124-8434-11bcb4b22ac6/collection/48922884-8493f4ca-6b1f-4d51-84ca-423515c770e2?action=share&source=collection_link&creator=48922884"
+	},
+	"item": [
+		{
+			"name": "Health & Docs",
+			"item": [
+				{
+					"name": "GET /index — liveness",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/index",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index"
+							]
+						},
+						"description": "Liveness probe. Should return 200 OK with body 'OK'."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /healthcheck — readiness (DB pool)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/healthcheck",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"healthcheck"
+							]
+						},
+						"description": "Readiness probe. Returns JSON with service+database status. HikariCP init failures surface here as database:DOWN."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /openapi.json",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/openapi.json",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"openapi.json"
+							]
+						},
+						"description": "OpenAPI spec for the service."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/docs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"docs"
+							]
+						},
+						"description": "API docs UI."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Account Transactions",
+			"item": [
+				{
+					"name": "POST /account/transactions — acct_123 (50/0)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"limit\": 50,\n  \"offset\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"transactions"
+							]
+						},
+						"description": "Primary business endpoint. Paginated travel-card transactions for an account."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /account/transactions — acct_456 (10/0)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"acct_456\",\n  \"limit\": 10,\n  \"offset\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"transactions"
+							]
+						},
+						"description": "Second account, smaller page."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /account/transactions — paginated (offset 50)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"limit\": 50,\n  \"offset\": 50\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"transactions"
+							]
+						},
+						"description": "Second page to exercise offset handling."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "GET /account/wallet/check — random member",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var memberIds = ['19', '20', '21', '22', '23'];",
+									"var randomId = memberIds[Math.floor(Math.random() * memberIds.length)];",
+									"pm.variables.set('agodaMemberId', randomId);",
+									"console.log('Using X-Agoda-Member-Id: ' + randomId);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Agoda-Member-Id",
+								"value": "{{agodaMemberId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/account/wallet/check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"wallet",
+								"check"
+							]
+						},
+						"description": "Check wallet for a member. Pre-request script picks a random X-Agoda-Member-Id from [19, 20, 21, 22, 23] on each send, so you get different results each time."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Card Management",
+			"item": [
+				{
+					"name": "POST /card/issue — virtual card (THB)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"cardType\": \"VIRTUAL\",\n  \"currency\": \"THB\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/card/issue",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"card",
+								"issue"
+							]
+						},
+						"description": "Issue a new virtual travel debit card. Returns 201 with card details."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /card/issue — physical card (USD)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"cardType\": \"PHYSICAL\",\n  \"currency\": \"USD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/card/issue",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"card",
+								"issue"
+							]
+						},
+						"description": "Issue a new physical travel debit card."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /card/topup — add 50000 minor units",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cardId\": 1,\n  \"amountMinor\": 50000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/card/topup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"card",
+								"topup"
+							]
+						},
+						"description": "Top up an existing travel card balance. Amount is in minor currency units (e.g. 50000 = 500.00 THB)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /card/freeze — toggle freeze",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cardId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/card/freeze",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"card",
+								"freeze"
+							]
+						},
+						"description": "Toggle freeze/unfreeze on a travel card. ACTIVE becomes FROZEN, FROZEN becomes ACTIVE."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hotel Bookings",
+			"item": [
+				{
+					"name": "POST /booking/hotel — Bangkok hotel",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"hotelName\": \"Grand Hyatt Erawan Bangkok\",\n  \"destination\": \"Bangkok, Thailand\",\n  \"checkIn\": \"2026-05-15\",\n  \"checkOut\": \"2026-05-18\",\n  \"rooms\": 1,\n  \"guests\": 2,\n  \"totalAmountMinor\": 450000,\n  \"currency\": \"THB\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/hotel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"hotel"
+							]
+						},
+						"description": "Book a hotel in Bangkok. Returns 201 with booking confirmation and reference."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /booking/hotel — Bali villa (multi-room)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"hotelName\": \"COMO Uma Ubud\",\n  \"destination\": \"Bali, Indonesia\",\n  \"checkIn\": \"2026-06-01\",\n  \"checkOut\": \"2026-06-07\",\n  \"rooms\": 3,\n  \"guests\": 6,\n  \"totalAmountMinor\": 12500000,\n  \"currency\": \"IDR\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/hotel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"hotel"
+							]
+						},
+						"description": "Multi-room family booking at a Bali villa."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /booking/hotel — Tokyo business trip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"acct_456\",\n  \"hotelName\": \"Aman Tokyo\",\n  \"destination\": \"Tokyo, Japan\",\n  \"checkIn\": \"2026-07-10\",\n  \"checkOut\": \"2026-07-12\",\n  \"rooms\": 1,\n  \"guests\": 1,\n  \"totalAmountMinor\": 15000000,\n  \"currency\": \"JPY\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/hotel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"hotel"
+							]
+						},
+						"description": "Single-night business trip booking in Tokyo."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Flight Bookings",
+			"item": [
+				{
+					"name": "POST /booking/flight — BKK to NRT round-trip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"airline\": \"Thai Airways\",\n  \"flightNumber\": \"TG660\",\n  \"origin\": \"BKK\",\n  \"destination\": \"NRT\",\n  \"departureDate\": \"2026-05-15\",\n  \"returnDate\": \"2026-05-22\",\n  \"passengers\": 2,\n  \"cabinClass\": \"ECONOMY\",\n  \"totalAmountMinor\": 3500000,\n  \"currency\": \"THB\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/flight",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"flight"
+							]
+						},
+						"description": "Round-trip economy flight from Bangkok to Tokyo Narita."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /booking/flight — SIN to DPS one-way business",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"airline\": \"Singapore Airlines\",\n  \"flightNumber\": \"SQ946\",\n  \"origin\": \"SIN\",\n  \"destination\": \"DPS\",\n  \"departureDate\": \"2026-06-01\",\n  \"passengers\": 1,\n  \"cabinClass\": \"BUSINESS\",\n  \"totalAmountMinor\": 85000,\n  \"currency\": \"SGD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/flight",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"flight"
+							]
+						},
+						"description": "One-way business class flight from Singapore to Bali."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /booking/flight — HKG to ICN first class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"acct_456\",\n  \"airline\": \"Cathay Pacific\",\n  \"flightNumber\": \"CX416\",\n  \"origin\": \"HKG\",\n  \"destination\": \"ICN\",\n  \"departureDate\": \"2026-08-01\",\n  \"returnDate\": \"2026-08-05\",\n  \"passengers\": 1,\n  \"cabinClass\": \"FIRST\",\n  \"totalAmountMinor\": 550000,\n  \"currency\": \"HKD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/flight",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"flight"
+							]
+						},
+						"description": "First class round-trip from Hong Kong to Seoul."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking Cancellation",
+			"item": [
+				{
+					"name": "POST /booking/cancel — cancel hotel booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bookingRef\": \"HTL-XXXXXXXX\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"cancel"
+							]
+						},
+						"description": "Cancel a hotel booking by reference. Replace HTL-XXXXXXXX with an actual booking ref from a prior hotel booking response."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /booking/cancel — cancel flight booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bookingRef\": \"FLT-XXXXXXXX\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"cancel"
+							]
+						},
+						"description": "Cancel a flight booking by reference. Replace FLT-XXXXXXXX with an actual booking ref from a prior flight booking response."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "POST /payment/process — travel card payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"cardId\": 1,\n  \"bookingRef\": \"HTL-XXXXXXXX\",\n  \"amountMinor\": 450000,\n  \"currency\": \"THB\",\n  \"paymentMethod\": \"TRAVEL_CARD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment/process",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payment",
+								"process"
+							]
+						},
+						"description": "Process a payment using a travel card. Links payment to a booking via bookingRef."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /payment/process — credit card payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"cardId\": 1,\n  \"amountMinor\": 85000,\n  \"currency\": \"SGD\",\n  \"paymentMethod\": \"CREDIT_CARD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment/process",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payment",
+								"process"
+							]
+						},
+						"description": "Process a standalone credit card payment (no booking linked)."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /payment/refund",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentRef\": \"PAY-XXXXXXXX\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment/refund",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payment",
+								"refund"
+							]
+						},
+						"description": "Refund a completed payment. Replace PAY-XXXXXXXX with an actual payment ref from a prior payment response."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reviews",
+			"item": [
+				{
+					"name": "POST /review/submit — 9/10 couple trip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"bookingRef\": \"HTL-XXXXXXXX\",\n  \"propertyName\": \"Grand Hyatt Erawan Bangkok\",\n  \"rating\": 9,\n  \"title\": \"Outstanding stay with amazing pool\",\n  \"comment\": \"The hotel exceeded our expectations. The infinity pool overlooking the city was breathtaking, and the breakfast buffet had an incredible selection of Thai and international dishes. Staff were extremely helpful with restaurant recommendations.\",\n  \"travelType\": \"COUPLE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/review/submit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"review",
+								"submit"
+							]
+						},
+						"description": "Submit a guest review for a hotel stay. Rating is 1-10 (Agoda scale). travelType: SOLO, COUPLE, FAMILY, BUSINESS."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /review/submit — 7/10 family trip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"bookingRef\": \"HTL-YYYYYYYY\",\n  \"propertyName\": \"COMO Uma Ubud\",\n  \"rating\": 7,\n  \"title\": \"Beautiful setting but slow service\",\n  \"comment\": \"The villa was stunning and the rice terrace views were worth the trip alone. However, room service was consistently slow and the kids club activities were limited. Would still recommend for the location.\",\n  \"travelType\": \"FAMILY\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/review/submit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"review",
+								"submit"
+							]
+						},
+						"description": "Submit a family trip review with moderate rating."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /review/submit — 10/10 business trip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Agoda-Whitelabel",
+								"value": "{{whitelabel}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountId\": \"acct_456\",\n  \"bookingRef\": \"HTL-ZZZZZZZZ\",\n  \"propertyName\": \"Aman Tokyo\",\n  \"rating\": 10,\n  \"title\": \"Perfection in every detail\",\n  \"comment\": \"Absolutely flawless business trip stay. The minimalist Japanese design is calming after long meetings. High-speed WiFi, impeccable concierge service, and the onsen spa is world-class. Worth every yen.\",\n  \"travelType\": \"BUSINESS\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/review/submit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"review",
+								"submit"
+							]
+						},
+						"description": "Perfect-score business trip review."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "whitelabel",
+			"value": "AGODA"
+		},
+		{
+			"key": "accountId",
+			"value": "acct_123"
+		}
+	]
+}
